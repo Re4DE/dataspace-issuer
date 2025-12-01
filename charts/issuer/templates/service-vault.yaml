@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: {{ include "common.namespace" . | quote }}
+  labels: {{- include "vault.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector: {{- include "vault.matchLabels" . | nindent 4 }}
+  ports:
+    - name: api
+      port: 8200
+      targetPort: 8200
+      protocol: TCP

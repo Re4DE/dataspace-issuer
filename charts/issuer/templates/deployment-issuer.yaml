@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: issuer
+  namespace: {{ include "common.namespace" . | quote }}
+  labels: {{- include "issuer.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {{- include "issuer.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: {{- include "issuer.labels" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.global.pullSecret }}
+      {{- if .Values.issuer.scheduling.label }}
+      nodeSelector:
+        {{- with .Values.issuer.scheduling.label }}
+        {{ toYaml . }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: issuer
+          image: {{ .Values.issuer.image.repository }}:{{ .Values.issuer.image.tag }}
+          imagePullPolicy: Always
+          {{- if .Values.issuer.startupProbe.enabled }}
+          startupProbe:
+            initialDelaySeconds: {{ .Values.issuer.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.issuer.startupProbe.periodSeconds }}
+            httpGet:
+              path: {{ .Values.issuer.endpoints.default.path }}/check/startup
+              port: {{ .Values.issuer.endpoints.default.port }}
+                  {{- end }}
+                  {{- if .Values.issuer.readinessProbe.enabled }}
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.issuer.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.issuer.readinessProbe.periodSeconds }}
+            httpGet:
+              path: {{ .Values.issuer.endpoints.default.path }}/check/readiness
+              port: {{ .Values.issuer.endpoints.default.port }}
+                  {{- end }}
+                  {{- if .Values.issuer.livenessProbe.enabled }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.issuer.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.issuer.livenessProbe.periodSeconds }}
+            httpGet:
+              path: {{ .Values.issuer.endpoints.default.path }}/check/liveness
+              port: {{ .Values.issuer.endpoints.default.port }}
+          {{- end }}
+          env:
+            - name: EDC_PARTICIPANT_ID
+              value: {{ .Values.global.participantId | quote }}
+            - name: EDC_COMPONENT_ID
+              value: "{{ .Values.global.participantId }}-issuer"
+            - name: EDC_HOSTNAME
+              value: {{ .Values.issuer.ingress.host | quote }}
+            - name: EDC_IAM_DID_WEB_USE_HTTPS
+              value: {{ .Values.issuer.edc.issuer.iam.didWebHttps | quote }}
+            - name: EDC_IH_API_SUPERUSER_KEY
+              value: {{ .Values.issuer.edc.issuer.seed.superUserKey | quote }}
+            - name: EDC_ISSUER_DID
+              value: {{ .Values.global.participantId | quote }}
+            - name: EDC_ISSUER_BASE_URL
+              value: "https://{{ .Values.issuer.ingress.host }}"
+            - name: EDC_STATUSLIST_CALLBACK_ADDRESS
+              value: {{ include "issuer.statuslistUrl" . }}
+            - name: EDC_ISSUER_STATUSLIST_SIGNING_KEY_ALIAS
+              value: {{ .Values.issuer.edc.issuer.statuslist.signingKeyAlias | quote }}
+            - name: EDC_CORE_RETRY_RETRIES_MAX
+              value: {{ .Values.issuer.edc.core.retriesMax | quote }}
+            - name: EDC_CORE_RETRY_BACKOFF_MIN
+              value: {{ .Values.issuer.edc.core.backoffMin | quote }}
+            - name: EDC_CORE_RETRY_BACKOFF_MAX
+              value: {{ .Values.issuer.edc.core.backoffMax | quote }}
+            - name: EDC_CORE_RETRY_LOG_ON_RETRY
+              value: {{ .Values.issuer.edc.core.logOnRetry | quote }}
+            - name: EDC_CORE_RETRY_LOG_ON_RETRY_SCHEDULED
+              value: {{ .Values.issuer.edc.core.logOnRetryScheduled | quote }}
+            - name: EDC_CORE_RETRY_LOG_ON_RETRIES_EXCEEDED
+              value: {{ .Values.issuer.edc.core.logOnRetriesExceeded | quote }}
+            - name: EDC_CORE_RETRY_LOG_ON_FAILED_ATTEMPT
+              value: {{ .Values.issuer.edc.core.logOnRetryFailedAttempt | quote }}
+            - name: EDC_CORE_RETRY_LOG_ON_ABORT
+              value: {{ .Values.issuer.edc.core.logOnRetryAbort | quote }}
+            - name: EDC_VAULT_HASHICORP_URL
+              value: "http://vault:8200"
+            - name: EDC_VAULT_HASHICORP_TOKEN
+              value: {{ .Values.vault.dev.devRootToken | quote }}
+            - name: EDC_VAULT_HASHICORP_HEALTH_CHECK_ENABLED
+              value: {{ .Values.issuer.edc.vault.healthCheck | quote }}
+            - name: EDC_VAULT_HASHICORP_HEALTH_CHECK_STANDBY_OK
+              value: {{ .Values.issuer.edc.vault.healthCheckStandBy | quote }}
+            - name: EDC_VAULT_HASHICORP_API_HEALTH_CHECK_PATH
+              value: {{ .Values.issuer.edc.vault.healthCheckPath | quote }}
+            - name: EDC_VAULT_HASHICORP_TOKEN_SCHEDULED-RENEW-ENABLED
+              value: {{ .Values.issuer.edc.vault.tokenScheduledRenew | quote }}
+            - name: EDC_VAULT_HASHICORP_TOKEN_TTL
+              value: {{ .Values.issuer.edc.vault.tokenTTL | quote }}
+            - name: EDC_VAULT_HASHICORP_TOKEN_RENEW-BUFFER
+              value: {{ .Values.issuer.edc.vault.tokenRenewBuffer | quote }}
+            - name: EDC_VAULT_HASHICORP_API_SECRET_PATH
+              value: {{ .Values.issuer.edc.vault.secretPath | quote }}
+            - name: EDC_HTTP_CLIENT_HTTPS_ENFORCE
+              value: {{ .Values.issuer.edc.http.clientHttpsEnforce | quote }}
+            - name: EDC_HTTP_CLIENT_TIMEOUT_CONNECT
+              value: {{ .Values.issuer.edc.http.clientTimeoutConnect | quote }}
+            - name: EDC_HTTP_CLIENT_TIMEOUT_READ
+              value: {{ .Values.issuer.edc.http.clientTimeoutRead | quote }}
+            - name: EDC_HTTP_CLIENT_SEND_BUFFER_SIZE
+              value: {{ .Values.issuer.edc.http.clientSendBuffer | quote }}
+            - name: EDC_HTTP_CLIENT_RECEIVE_BUFFER_SIZE
+              value: {{ .Values.issuer.edc.http.clientReceiveBuffer | quote }}
+            - name: WEB_HTTP_PATH
+              value: {{ .Values.issuer.endpoints.default.path | quote }}
+            - name: WEB_HTTP_PORT
+              value: {{ .Values.issuer.endpoints.default.port | quote }}
+            - name: WEB_HTTP_IDENTITY_PATH
+              value: {{ .Values.issuer.endpoints.identity.path | quote }}
+            - name: WEB_HTTP_IDENTITY_PORT
+              value: {{ .Values.issuer.endpoints.identity.port | quote }}
+            - name: WEB_HTTP_STS_PATH
+              value: {{ .Values.issuer.endpoints.sts.path | quote }}
+            - name: WEB_HTTP_STS_PORT
+              value: {{ .Values.issuer.endpoints.sts.port | quote }}
+            - name: WEB_HTTP_VERSION_PATH
+              value: {{ .Values.issuer.endpoints.version.path | quote }}
+            - name: WEB_HTTP_VERSION_PORT
+              value: {{ .Values.issuer.endpoints.version.port | quote }}
+            - name: WEB_HTTP_DID_PATH
+              value: {{ .Values.issuer.endpoints.did.path | quote }}
+            - name: WEB_HTTP_DID_PORT
+              value: {{ .Values.issuer.endpoints.did.port | quote }}
+            - name: WEB_HTTP_ISSUANCE_PATH
+              value: {{ .Values.issuer.endpoints.issuance.path | quote }}
+            - name: WEB_HTTP_ISSUANCE_PORT
+              value: {{ .Values.issuer.endpoints.issuance.port | quote }}
+            - name: WEB_HTTP_ISSUARADMIN_PATH
+              value: {{ .Values.issuer.endpoints.admin.path | quote }}
+            - name: WEB_HTTP_ISSUARADMIN_PORT
+              value: {{ .Values.issuer.endpoints.admin.port | quote }}
+            - name: WEB_HTTP_STATUSLIST_PATH
+              value: {{ .Values.issuer.endpoints.statuslist.path | quote }}
+            - name: WEB_HTTP_STATUSLIST_PORT
+              value: {{ .Values.issuer.endpoints.statuslist.port | quote }}
+            - name: EDC_SQL_SCHEMA_AUTOCREATE
+              value: "true"
+            - name: EDC_SQL_FETCH_SIZE
+              value: {{ .Values.issuer.edc.sql.fetchSize | quote }}
+            - name: EDC_DATASOURCE_DEFAULT_USER
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: EDC_DATASOURCE_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.auth.existingSecret }}
+                  key: {{ .Values.postgresql.auth.secretKeys.userPasswordKey }}
+            - name: EDC_DATASOURCE_DEFAULT_URL
+              value: "jdbc:postgresql://{{ .Release.Name }}-postgresql:{{ .Values.postgresql.containerPorts.postgresql }}/{{ .Values.postgresql.auth.database }}"

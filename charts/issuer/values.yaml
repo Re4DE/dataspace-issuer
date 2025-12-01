@@ -1,0 +1,127 @@
+install:
+  postgresql: true
+
+global:
+  participantId: did:web:dataspcae:issuer
+  defaultStorageClass: harvester
+  pullSecret: gitlab
+  security:
+    allowInsecureImages: true
+
+namespaceOverride: ""
+
+issuer:
+  image:
+    repository: container-registry.gitlab.cc-asp.fraunhofer.de/future-energy-lab-testfeld/dataspace-issuer/issuer
+    tag: 0.8.0
+  scheduling:
+    label: null
+  endpoints:
+    default:
+      path: /api
+      port: 8080
+      public: false
+    identity:
+      path: /api/identity
+      port: 8082
+      public: false
+    sts:
+      path: /api/sts
+      port: 8083
+      public: false
+    version:
+      path: /api/version
+      port: 8084
+      public: true
+    did:
+      path: /
+      port: 8085
+      public: true
+    issuance:
+      path: /api/issuance
+      port: 8086
+      public: true
+    admin:
+      path: /api/admin
+      port: 8087
+      public: false
+    statuslist:
+      path: /api/statuslist
+      port: 8090
+      public: true
+  service:
+    enabled: true
+  ingress:
+    enabled: true
+    host: issuer-dena.services.iee.fraunhofer.de
+    tls:
+      enabled: false
+      issuer: cert-issuer
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 1
+    periodSeconds: 3
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 1
+    periodSeconds: 5
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 3
+    periodSeconds: 5
+  edc:
+    core:
+      retriesMax: 5
+      backoffMin: 500
+      backoffMax: 10000
+      logOnRetry: false
+      logOnRetryScheduled: false
+      logOnRetriesExceeded: false
+      logOnRetryFailedAttempt: false
+      logOnRetryAbort: false
+    http:
+      clientHttpsEnforce: false
+      clientTimeoutConnect: 30
+      clientTimeoutRead: 30
+      clientSendBuffer: 0
+      clientReceiveBuffer: 0
+    vault:
+      healthCheck: true
+      healthCheckStandBy: false
+      healthCheckPath: /v1/sys/health
+      tokenScheduledRenew: true
+      tokenTTL: 300
+      tokenRenewBuffer: 30
+      secretPath: /v1/secret
+    sql:
+      fetchSize: 5000
+    issuer:
+      statuslist:
+        signingKeyAlias: statuslist-signing-key
+      iam:
+        didWebHttps: true
+      seed:
+        superUserKey: c3VwZXItdXNlcg==.changeme
+
+vault:
+  enabled: true
+  image:
+    repository: hashicorp/vault
+    tag: 1.18.1
+  dev:
+    devRootToken: changeme
+  persistence:
+    size: 8Gi
+    volumeName: vault-vol
+  postStart: []
+
+postgresql:
+  image:
+    repository: bitnamilegacy/postgresql
+  auth:
+    username: edc
+    database: edc
+    existingSecret: postgres-secret
+  primary:
+    initdb:
+      scriptsConfigMap: postgresql

@@ -1,0 +1,19 @@
+{{- if .Values.issuer.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: issuer
+  namespace: {{ include "common.namespace" . | quote }}
+  labels: {{- include "issuer.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector: {{- include "issuer.matchLabels" . | nindent 4 }}
+  ports:
+    {{- range $k, $v := .Values.issuer.endpoints }}
+    - name: {{ $k }}
+      port: {{ $v.port }}
+      targetPort: {{ $v.port }}
+      protocol: TCP
+    {{- end }}
+  {{- end }}

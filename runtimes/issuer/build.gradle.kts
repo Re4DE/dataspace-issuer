@@ -1,0 +1,26 @@
+plugins {
+    `java-library`
+    id("application")
+    alias(libs.plugins.shadow)
+}
+
+dependencies {
+    runtimeOnly(libs.bundles.issuer)
+
+    runtimeOnly(project(":extensions:issuer-seed"))
+    runtimeOnly(project(":extensions:membership-issuance-seed"))
+}
+
+application {
+    mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
+}
+
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    exclude("**/pom.properties", "**/pom.xm")
+    mergeServiceFiles()
+    archiveFileName.set("issuer.jar")
+}
+
+edcBuild {
+    publish.set(false)
+}

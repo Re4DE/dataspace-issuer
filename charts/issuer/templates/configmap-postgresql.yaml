@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql
+  namespace: {{ include "common.namespace" . | quote }}
+  labels: {{- include "issuer.labels" . | nindent 4 }}
+data:
+  init-membership-attestation.sql: |
+    DO $$ BEGIN
+        CREATE TYPE membershiptype AS ENUM (
+            'regular',
+            'mako'
+        );
+    EXCEPTION
+        WHEN duplicate_object THEN null;
+    END $$;
+
+    CREATE TABLE IF NOT EXISTS membership_attestations
+    (
+        membership_type     membershiptype  default 'regular'                   ,
+        holder_id           varchar                                     not null,
+        company_name        varchar                                     not null,
+        since               timestamp       default now()               not null,
+        id                  varchar         default gen_random_uuid()   not null
+            constraint attestations_pk
+                primary key
+        );
+
+    CREATE UNIQUE INDEX IF NOT EXISTS membership_attestation_holder_id_uindex
+        ON membership_attestations (holder_id);

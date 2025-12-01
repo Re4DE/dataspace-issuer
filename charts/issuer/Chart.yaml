@@ -1,0 +1,15 @@
+apiVersion: v2
+name: dataspace-issuer
+description: |
+  A Helm chart for the data space issuer based on the identity hub.
+  The data space issuer can issuance MembershipCredentials.
+
+type: application
+version: 0.8.0
+appVersion: 0.8.0
+
+dependencies:
+  - name: postgresql
+    version: 16.4.3
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: install.postgresql

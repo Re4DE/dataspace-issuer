@@ -1,0 +1,35 @@
+{{- if .Values.issuer.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: issuer
+  namespace: {{ include "common.namespace" . | quote }}
+  labels: {{- include "issuer.labels" . | nindent 4 }}
+  {{- if .Values.issuer.ingress.tls.enabled }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.issuer.ingress.tls.issuer }}
+  {{- end }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.issuer.ingress.host }}
+      http:
+        paths:
+          {{- range $k, $v := .Values.issuer.endpoints }}
+          {{- if $v.public }}
+          - path: {{ $v.path }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: issuer
+                port:
+                  name: {{ $k }}
+          {{- end }}
+          {{- end }}
+  {{- if .Values.issuer.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.issuer.ingress.host }}
+      secretName: {{ .Values.issuer.ingress.host }}-tls
+  {{- end }}
+{{- end }}
