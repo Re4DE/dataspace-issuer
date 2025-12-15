@@ -45,11 +45,11 @@ a persistent backend with the developer server.
 | issuer.endpoints.did.path                      | /                                      | DID api path                                                                  |          |
 | issuer.endpoints.did.port                      | 8085                                   | DID api port                                                                  |          |
 | issuer.endpoints.did.public                    | true                                   | Toggle to create a Ingress Rule                                               |          |
-| issuer.endpoints.issuance.path                 | /api/issuance                          | VC issuance catalog path                                                      |          |
-| issuer.endpoints.issuance.port                 | 8086                                   | VC issuance catalog port                                                      |          |
+| issuer.endpoints.issuance.path                 | /api/issuance                          | VC issuance path                                                              |          |
+| issuer.endpoints.issuance.port                 | 8086                                   | VC issuance port                                                              |          |
 | issuer.endpoints.issuance.public               | true                                   | Toggle to create a Ingress Rule                                               |          |
-| issuer.endpoints.admin.path                    | /api/admin                             | Admin catalog path                                                            |          |
-| issuer.endpoints.admin.port                    | 8087                                   | Admin catalog port                                                            |          |
+| issuer.endpoints.admin.path                    | /api/admin                             | Admin path                                                                    |          |
+| issuer.endpoints.admin.port                    | 8087                                   | Admin port                                                                    |          |
 | issuer.endpoints.admin.public                  | false                                  | Toggle to create a Ingress Rule                                               |          |
 | issuer.endpoints.statuslist.path               | /api/statuslist                        | Status list path                                                              |          |
 | issuer.endpoints.statuslist.port               | 8090                                   | Status list port                                                              |          |
@@ -89,6 +89,6 @@ a persistent backend with the developer server.
 | issuer.edc.vault.tokenRenewBuffer              | 30                                     | The renew buffer of the Hashicorp Vault token in seconds                      |          |
 | issuer.edc.vault.secretPath                    | /v1/secret                             | The URL path of the vault's /secret endpoint                                  |          |
 | issuer.edc.sql.fetchSize                       | 5000                                   | Fetch size value used in SQL queries                                          |          |
-| issuer.edc.issuer.statuslist.signingKeyAlias   | statuslist-signing-key                 | The url where to find all participants that are available in the data space   |          | 
+| issuer.edc.issuer.statuslist.signingKeyAlias   | statuslist-signing-key                 | Key alias of the statuslist signing key in the `HasiCorp Vault`               |          | 
 | issuer.edc.issuer.iam.didWebHttps              | true                                   | Switch between https and http for did providing, should be always true        |          |
 | issuer.edc.issuer.seed.superUserKey            | c3VwZXItdXNlcg==.changeme              | The super user api key in form of base64(<participantId>).<random-string>     | x        |
