@@ -77,5 +77,5 @@ override.tf.json
 terraform.rc
 
 ### Helm ###
-charts/issuer/charts
-charts/issuer/overwrite.yaml
+chart/issuer/charts
+chart/issuer/overwrite.yaml
