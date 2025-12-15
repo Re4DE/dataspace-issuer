@@ -1,3 +1,4 @@
+{{- if .Values.install.vault }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -76,3 +77,4 @@ spec:
         resources:
           requests:
             storage: {{ .Values.vault.persistence.size | quote }}
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.install.vault }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,3 +14,4 @@ spec:
       port: 8200
       targetPort: 8200
       protocol: TCP
+{{- end }}

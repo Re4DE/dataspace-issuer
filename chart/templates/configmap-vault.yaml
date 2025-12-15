@@ -1,3 +1,4 @@
+{{- if .Values.install.vault }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -145,3 +146,4 @@ data:
     fi
 
     exec "$@"
+{{- end }}

@@ -1,19 +1,19 @@
 install:
   postgresql: true
+  vault: true
 
 global:
   participantId: did:web:dataspcae:issuer
-  defaultStorageClass: harvester
-  pullSecret: gitlab
+  defaultStorageClass: default
   security:
-    allowInsecureImages: true
+    allowInsecureImages: true # Postgres specific
 
 namespaceOverride: ""
 
 issuer:
   image:
-    repository: container-registry.gitlab.cc-asp.fraunhofer.de/future-energy-lab-testfeld/dataspace-issuer/issuer
-    tag: 0.8.0
+    repository: ghcr.io/re4de/dataspace-issuer
+    tag: 1.0.0-edc0.14.0
   scheduling:
     label: null
   endpoints:
@@ -53,7 +53,7 @@ issuer:
     enabled: true
   ingress:
     enabled: true
-    host: issuer-dena.services.iee.fraunhofer.de
+    host: changeme
     tls:
       enabled: false
       issuer: cert-issuer
@@ -104,7 +104,6 @@ issuer:
         superUserKey: c3VwZXItdXNlcg==.changeme
 
 vault:
-  enabled: true
   image:
     repository: hashicorp/vault
     tag: 1.18.1
