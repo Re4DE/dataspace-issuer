@@ -32,8 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Optional.ofNullable;
-
 @Extension(value = "Creates attestations and credential descriptions for the MembershipCredential")
 public class MembershipIssuanceExtension implements ServiceExtension {
 
@@ -53,16 +51,16 @@ public class MembershipIssuanceExtension implements ServiceExtension {
     private static final String CREDENTIAL_DEFAULT_TYPE = "MembershipCredential";
     private static final String CREDENTIAL_DEFAULT_FORMAT = "VC1_0_JWT";
     private static final String CREDENTIAL_DEFAULT_JSON_SCHEMA = "{}";
-    private static final String CREDENTIAL_DEFAULT_JSON_SCHEMA_URL = "https://iee.fraunhofer.de/schema/membership-credential.json";
+    private static final String CREDENTIAL_DEFAULT_JSON_SCHEMA_URL = "";
 
-    @Setting(description = "Table name used to extract the membership attestations")
-    public static final String TABLE_NAME = "edc.issuer.issuance.membership.attestation.table.name";
+    @Setting(key = "edc.issuer.issuance.membership.attestation.table.name", description = "Table name used to extract the membership attestations", required = false, defaultValue = ATTESTATION_DEFAULT_TABLE_NAME)
+    private String tableName;
 
-    @Setting(description = "The name of the data source context")
-    public static final String DATA_SOURCE_NAME = "edc.issuer.issuance.membership.attestation.data.source.name";
+    @Setting(key = "edc.issuer.issuance.membership.attestation.data.source.name", description = "The name of the data source context", required = false, defaultValue = ATTESTATION_DEFAULT_DATA_SOURCE_NAME)
+    private String dataSourceName;
 
-    @Setting(description = "The column name used to identify the holder of the requested credential")
-    public static final String ID_COLUMN = "edc.issuer.issuance.membership.attestation.id.column";
+    @Setting(key = "edc.issuer.issuance.membership.attestation.id.column", description = "The column name used to identify the holder of the requested credential", required = false, defaultValue = ATTESTATION_DEFAULT_ID_COLUMN)
+    private String idColumn;
 
     @Inject
     private AttestationDefinitionService attestationDefinitionService;
@@ -72,29 +70,9 @@ public class MembershipIssuanceExtension implements ServiceExtension {
 
     private Monitor monitor;
 
-    private String tableName;
-    private String dataSourceName;
-    private String idColumn;
-
     @Override
     public void initialize(ServiceExtensionContext context) {
         this.monitor = context.getMonitor();
-
-        this.tableName = ofNullable(context.getSetting(TABLE_NAME, null))
-                .orElseGet(() -> {
-                    this.monitor.warning("Missing setting " + TABLE_NAME + " setting, using default value.");
-                    return ATTESTATION_DEFAULT_TABLE_NAME;
-                });
-        this.dataSourceName = ofNullable(context.getSetting(DATA_SOURCE_NAME, null))
-                .orElseGet(() -> {
-                    this.monitor.warning("Missing setting " + DATA_SOURCE_NAME + " setting, using default value.");
-                    return ATTESTATION_DEFAULT_DATA_SOURCE_NAME;
-                });
-        this.idColumn = ofNullable(context.getSetting(ID_COLUMN, null))
-                .orElseGet(() -> {
-                    this.monitor.warning("Missing setting " + ID_COLUMN + " setting, using default value.");
-                    return ATTESTATION_DEFAULT_ID_COLUMN;
-                });
     }
 
     @Override

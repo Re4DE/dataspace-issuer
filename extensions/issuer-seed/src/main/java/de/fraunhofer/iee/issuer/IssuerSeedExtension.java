@@ -40,14 +40,14 @@ import static java.util.Optional.ofNullable;
 public class IssuerSeedExtension implements ServiceExtension {
     public static final String DEFAULT_SUPER_USER_PARTICIPANT_ID = "super-user";
 
-    @Setting(description = "Explicitly set the initial API key for the Super User, if empty autogenerate")
-    public static final String SUPERUSER_APIKEY = "edc.issuer.api.superuser.key";
+    @Setting(key = "edc.issuer.api.superuser.key", description = "Explicitly set the initial API key for the Super User, if empty autogenerate", required = false)
+    private String superUserApiKey;
 
-    @Setting(description = "The base url of the data space issuer")
-    public static final String ISSUER_BASE_URL = "edc.issuer.base.url";
+    @Setting(key = "edc.issuer.base.url", description = "The base url of the data space issuer")
+    private String issuerBaseUrl;
 
-    @Setting(description = "The did of the data space issuer")
-    public static final String ISSUER_DID = "edc.issuer.did";
+    @Setting(key = "edc.issuer.did", description = "The did of the data space issuer")
+    private String issuerDid;
 
     @Inject
     private ParticipantContextService participantContextService;
@@ -58,19 +58,11 @@ public class IssuerSeedExtension implements ServiceExtension {
     @Inject
     private Vault vault;
 
-    private String superUserApiKey;
     private Monitor monitor;
-    private String issuerDid;
     private String issuancePath;
-    private String issuerBaseUrl;
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        this.superUserApiKey = context.getSetting(SUPERUSER_APIKEY, "");
-        this.issuerBaseUrl = ofNullable(context.getSetting(ISSUER_BASE_URL, ""))
-                .orElseThrow(() -> new EdcException("Missing value for " + ISSUER_BASE_URL));
-        this.issuerDid = ofNullable(context.getSetting(ISSUER_DID, ""))
-                .orElseThrow(() -> new EdcException("Missing value for " + ISSUER_DID));
         this.monitor = context.getMonitor();
         this.issuancePath = context.getSetting("web.http.issuance.path", "/api/issuance");
     }
