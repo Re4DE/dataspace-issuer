@@ -1,0 +1,26 @@
+name: "Snapshot Build and Publish"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ghcr.io/re4de/dataspace-issuer
+
+jobs:
+  Snapshot:
+    name: "Test, Build and Publish Docker Snapshot image"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Prepare
+        run: chmod +x ./gradlew
+      - name: Test
+        run: ./gradlew -p ./runtimes/issuer test
+      - name: Docker Build
+        run: docker build -t $IMAGE_NAME:SNAPSHOT -f ./runtimes/issuer/src/main/docker/Dockerfile .
+      - name: Docker Push
+        run: docker push $IMAGE_NAME:SNAPSHOT
