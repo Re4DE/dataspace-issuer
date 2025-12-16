@@ -23,6 +23,6 @@ jobs:
       - name: Test
         run: ./gradlew -p ./runtimes/issuer test
       - name: Docker Build
-        run: docker build -t $IMAGE_NAME::${{ github.ref_name }} -f ./runtimes/issuer/src/main/docker/Dockerfile .
+        run: docker build -t $IMAGE_NAME:${{ github.ref_name }} -f ./runtimes/issuer/src/main/docker/Dockerfile .
       - name: Docker Push
-        run: docker push $IMAGE_NAME::${{ github.ref_name }}
+        run: docker push $IMAGE_NAME:${{ github.ref_name }}
