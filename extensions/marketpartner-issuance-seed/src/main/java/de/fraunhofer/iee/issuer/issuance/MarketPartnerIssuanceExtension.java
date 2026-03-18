@@ -131,7 +131,6 @@ public class MarketPartnerIssuanceExtension implements ServiceExtension {
 
     private Set<MappingDefinition> buildCredentialMappings() {
         var mappings = new LinkedHashSet<MappingDefinition>();
-        mappings.add(new MappingDefinition("id", "credentialSubject.id", true));
         mappings.add(new MappingDefinition("company_name", "credentialSubject.companyName", true));
         mappings.add(new MappingDefinition("company_uid", "credentialSubject.companyUID", true));
         mappings.add(new MappingDefinition("sector", "credentialSubject.sector", true));
