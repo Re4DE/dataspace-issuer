@@ -1,7 +1,7 @@
 # MembershipCredential issuance seed Extension
 
 This extension creates the membership attestation and credential definition.
-With the membership attestation definition, the data issuer specifies the data a new participant needs to provide
+With the membership attestation definition, the data space issuer specifies the data a new participant needs to provide
 during the onboarding process.
 With the membership credential definition, a mapping between attested properties and credential properties is created.
 

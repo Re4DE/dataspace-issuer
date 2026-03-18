@@ -5,7 +5,8 @@
 ---
 
 This Dataspace Issuer is based on the components from the [EDC Identity Hub](https://github.com/eclipse-edc/IdentityHub) in the version 0.14.0.
-The  Dataspace Issuer issues `MembershipCredentials` for onboarded participants.
+The  Dataspace Issuer issues `MembershipCredentials` for onboarded participants and `MarketpartnerCredentials`
+for companies that are part of the regulated market communication.
 The Dataspace Issuer need a running instance of a `PostgreSQL` database and a `HashiCorp Vault`.
 
 ## Versioning
@@ -99,7 +100,7 @@ Follow these step to use the `local-dev` runtime.
 ### 1. Start environment from the connector repository
 
 As the Issuer cannot be used without a `PostgreSQL` database and a `HashiCorp Vault`, there must be a running instances of both.
-You can use the [local-dev](...) runtime from the connector repository for that.
+You can use the [local-dev](https://github.com/Re4DE/connector/blob/main/runtimes/local-dev/docker-env/src/main/docker/docker-compose.yaml) runtime from the connector repository for that.
 
 ### 2. Start the Issuer
 

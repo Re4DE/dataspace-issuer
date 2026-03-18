@@ -26,7 +26,7 @@ a persistent backend with the developer server. This needs to be considered when
 | namespaceOverride                            | ""                             | Override the namespace                                                        |          |
 |                                              |                                |                                                                               |          |
 | issuer.image.repository                      | ghcr.io/re4de/dataspace-issuer | Repository URL of the Docker Image                                            |          |
-| issuer.image.tag                             | 1.0.0-edc0.14.0                | Tag of the Docker Image                                                       |          |
+| issuer.image.tag                             | 1.1.0-edc0.14.0                | Tag of the Docker Image                                                       |          |
 | issuer.scheduling.label                      | null                           | Configure where the issuer should be schedule, e.g. `node: ssd`               |          | 
 | issuer.endpoints.default.path                | /api                           | Default api path                                                              |          |
 | issuer.endpoints.default.port                | 8080                           | Default api port                                                              |          |

@@ -32,3 +32,4 @@ include(":runtimes:local-dev")
 
 include(":extensions:issuer-seed")
 include(":extensions:membership-issuance-seed")
+include(":extensions:marketpartner-issuance-seed")

@@ -32,14 +32,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Extension(value = "Creates attestations and credential descriptions for the MembershipCredential")
-public class MembershipIssuanceExtension implements ServiceExtension {
+@Extension(value = "Creates attestations and credential descriptions for the MarketpartnerCredential")
+public class MarketPartnerIssuanceExtension implements ServiceExtension {
 
     private static final String DEFAULT_PARTICIPANT_CONTEXT = "super-user";
 
-    private static final String ATTESTATION_DEFAULT_ID = "db-membership-attestation-def-1";
+    private static final String ATTESTATION_DEFAULT_ID = "db-marketpartner-attestation-def-1";
     private static final String ATTESTATION_DEFAULT_TYPE = "database";
-    private static final String ATTESTATION_DEFAULT_TABLE_NAME = "membership_attestations";
+    private static final String ATTESTATION_DEFAULT_TABLE_NAME = "marketpartner_attestations";
     private static final String ATTESTATION_DEFAULT_DATA_SOURCE_NAME = "default";
     private static final String ATTESTATION_DEFAULT_ID_COLUMN = "holder_id";
 
@@ -47,19 +47,19 @@ public class MembershipIssuanceExtension implements ServiceExtension {
     private static final String ATTESTATION_CONFIG_DATA_SOURCE_NAME = "dataSourceName";
     private static final String ATTESTATION_CONFIG_ID_COLUMN = "idColumn";
 
-    private static final String CREDENTIAL_DEFAULT_ID = "membership-credential-def-1";
-    private static final String CREDENTIAL_DEFAULT_TYPE = "MembershipCredential";
+    private static final String CREDENTIAL_DEFAULT_ID = "marketpartner-credential-def-1";
+    private static final String CREDENTIAL_DEFAULT_TYPE = "MarketPartnerCredential";
     private static final String CREDENTIAL_DEFAULT_FORMAT = "VC1_0_JWT";
     private static final String CREDENTIAL_DEFAULT_JSON_SCHEMA = "{}";
     private static final String CREDENTIAL_DEFAULT_JSON_SCHEMA_URL = "";
 
-    @Setting(key = "edc.issuer.issuance.membership.attestation.table.name", description = "Table name used to extract the membership attestations", required = false, defaultValue = ATTESTATION_DEFAULT_TABLE_NAME)
+    @Setting(key = "edc.issuer.issuance.marketpartner.attestation.table.name", description = "Table name used to extract the market partner attestations", required = false, defaultValue = ATTESTATION_DEFAULT_TABLE_NAME)
     private String tableName;
 
-    @Setting(key = "edc.issuer.issuance.membership.attestation.data.source.name", description = "The name of the data source context", required = false, defaultValue = ATTESTATION_DEFAULT_DATA_SOURCE_NAME)
+    @Setting(key = "edc.issuer.issuance.marketpartner.attestation.data.source.name", description = "The name of the data source context", required = false, defaultValue = ATTESTATION_DEFAULT_DATA_SOURCE_NAME)
     private String dataSourceName;
 
-    @Setting(key = "edc.issuer.issuance.membership.attestation.id.column", description = "The column name used to identify the holder of the requested credential", required = false, defaultValue = ATTESTATION_DEFAULT_ID_COLUMN)
+    @Setting(key = "edc.issuer.issuance.marketpartner.attestation.id.column", description = "The column name used to identify the holder of the requested credential", required = false, defaultValue = ATTESTATION_DEFAULT_ID_COLUMN)
     private String idColumn;
 
     @Inject
@@ -77,17 +77,17 @@ public class MembershipIssuanceExtension implements ServiceExtension {
 
     @Override
     public void start() {
-        // Seed the membership attestation
-        this.seedMembershipAttestationDefinition();
+        // Seed the market partner attestation
+        this.seedMarketPartnerAttestationDefinition();
 
-        // Seed the membership credential definition
-        this.seedMembershipCredentialDefinition();
+        // Seed the market partner credential definition
+        this.seedMarketPartnerCredentialDefinition();
     }
 
-    private void seedMembershipAttestationDefinition() {
-        // If the membership attestation definition is already present, skip
+    private void seedMarketPartnerAttestationDefinition() {
+        // If the market partner attestation definition is already present, skip
         if (this.attestationDefinitionService.getAttestationById(ATTESTATION_DEFAULT_ID).succeeded()) {
-            this.monitor.info("Membership attestation already seeded, skipped.");
+            this.monitor.info("Market partner attestation already seeded, skipped.");
             return;
         }
 
@@ -102,12 +102,12 @@ public class MembershipIssuanceExtension implements ServiceExtension {
                 .participantContextId(DEFAULT_PARTICIPANT_CONTEXT)
                 .build();
         this.attestationDefinitionService.createAttestation(attestationDef)
-                .onSuccess((v) -> this.monitor.info("Membership attestation definition created."))
-                .orElseThrow(f -> new EdcException("Error creating membership attestation definition: " + f.getFailureDetail()));
+                .onSuccess((v) -> this.monitor.info("Market partner attestation definition created."))
+                .orElseThrow(f -> new EdcException("Error creating market partner attestation definition: " + f.getFailureDetail()));
     }
 
-    private void seedMembershipCredentialDefinition() {
-        // If the membership credential definition is already present, skip
+    private void seedMarketPartnerCredentialDefinition() {
+        // If the market partner credential definition is already present, skip
         if (this.credentialDefinitionService.findCredentialDefinitionById(CREDENTIAL_DEFAULT_ID).succeeded()) {
             this.monitor.info("Credential definition already seeded, skipped.");
             return;
@@ -125,14 +125,20 @@ public class MembershipIssuanceExtension implements ServiceExtension {
                 .mappings(this.buildCredentialMappings())
                 .build();
         this.credentialDefinitionService.createCredentialDefinition(credentialDef)
-                .onSuccess((v) -> this.monitor.info("Membership credential definition created."))
-                .orElseThrow(f -> new EdcException("Error creating membership credential definition: " + f.getFailureDetail()));
+                .onSuccess((v) -> this.monitor.info("Market partner credential definition created."))
+                .orElseThrow(f -> new EdcException("Error creating market partner credential definition: " + f.getFailureDetail()));
     }
 
     private Set<MappingDefinition> buildCredentialMappings() {
         var mappings = new LinkedHashSet<MappingDefinition>();
         mappings.add(new MappingDefinition("id", "credentialSubject.id", true));
-        mappings.add(new MappingDefinition("holder_id", "credentialSubject.holderIdentifier", true));
+        mappings.add(new MappingDefinition("company_name", "credentialSubject.companyName", true));
+        mappings.add(new MappingDefinition("company_uid", "credentialSubject.companyUID", true));
+        mappings.add(new MappingDefinition("sector", "credentialSubject.sector", true));
+        mappings.add(new MappingDefinition("code_issuing_body", "credentialSubject.codeIssuingBody", true));
+        mappings.add(new MappingDefinition("market_role_mp_id", "credentialSubject.marketRole.mpId", true));
+        mappings.add(new MappingDefinition("market_role_name", "credentialSubject.marketRole.roleName", true));
+        mappings.add(new MappingDefinition("market_role_abbrv", "credentialSubject.marketRole.roleAbbreviation", true));
         return mappings;
     }
 }
