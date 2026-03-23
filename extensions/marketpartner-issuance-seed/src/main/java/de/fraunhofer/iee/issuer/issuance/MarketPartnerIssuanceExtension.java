@@ -135,9 +135,7 @@ public class MarketPartnerIssuanceExtension implements ServiceExtension {
         mappings.add(new MappingDefinition("company_uid", "credentialSubject.companyUID", true));
         mappings.add(new MappingDefinition("sector", "credentialSubject.sector", true));
         mappings.add(new MappingDefinition("code_issuing_body", "credentialSubject.codeIssuingBody", true));
-        mappings.add(new MappingDefinition("market_role_mp_id", "credentialSubject.marketRole.mpId", true));
-        mappings.add(new MappingDefinition("market_role_name", "credentialSubject.marketRole.roleName", true));
-        mappings.add(new MappingDefinition("market_role_abbrv", "credentialSubject.marketRole.roleAbbreviation", true));
+        mappings.add(new MappingDefinition("market_role", "credentialSubject.marketRole", true));
         return mappings;
     }
 }
