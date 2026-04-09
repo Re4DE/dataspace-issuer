@@ -97,4 +97,4 @@ a persistent backend with the developer server. This needs to be considered when
 | vault.persistence.storageClass               | changeme                       | The name of the storage class                                                 | X        |
 | vault.postStart                              | []                             | A script that can be used to initialy create key/value pairs                  |          |
 |                                              |                                |                                                                               |          |
-| postgres.persistence.strageClass             | changeme                       | The name of the storage class                                                 | X        |
+| postgres.persistence.storageClass            | changeme                       | The name of the storage class                                                 | X        |
