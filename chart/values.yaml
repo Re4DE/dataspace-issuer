@@ -16,12 +16,7 @@ install:
   postgresql: true
   vault: true
 
-global:
-  participantId: did:web:dataspcae:issuer
-  defaultStorageClass: default
-  security:
-    allowInsecureImages: true # Postgres specific
-
+participantId: did:web:dataspcae:issuer
 namespaceOverride: ""
 
 issuer:
@@ -126,15 +121,21 @@ vault:
   persistence:
     size: 8Gi
     volumeName: vault-vol
+    storageClass: changeme
   postStart: []
 
-postgresql:
-  image:
-    repository: bitnamilegacy/postgresql
+postgres:
+  persistence:
+    storageClass: changeme
   auth:
-    username: edc
+    existingSecret: postgres-secret
+  customUser:
+    name: edc
     database: edc
     existingSecret: postgres-secret
-  primary:
-    initdb:
-      scriptsConfigMap: postgresql
+    secretKeys:
+      name: null
+      database: null
+      password: password
+  initdb:
+    scriptsConfigMap: postgresql

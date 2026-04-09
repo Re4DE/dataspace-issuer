@@ -23,7 +23,7 @@ version: 1.1.0
 appVersion: 1.1.0-edc0.14.0
 
 dependencies:
-  - name: postgresql
-    version: 16.4.3
-    repository: oci://registry-1.docker.io/bitnamicharts
-    condition: install.postgresql
+  - name: postgres
+    version: 0.18.3
+    repository: oci://registry-1.docker.io/cloudpirates
+    condition: install.postgres

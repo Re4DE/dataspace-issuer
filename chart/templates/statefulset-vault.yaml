@@ -86,7 +86,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: {{ .Values.global.defaultStorageClass }}
+        storageClassName: {{ .Values.vault.persistence.storageClass | quote }}
         resources:
           requests:
             storage: {{ .Values.vault.persistence.size | quote }}

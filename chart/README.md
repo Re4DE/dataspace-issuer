@@ -11,7 +11,7 @@ It will be deployed:
 
 ## Configuration
 
-The configuration of the `PostgreSQL` specific fields can be found in the Bitnami Helm Chart [Documentation](https://github.com/bitnami/charts/tree/postgresql/16.4.3/bitnami/postgresql).
+The configuration of the `PostgreSQL` specific fields can be found in the CloudPirates Helm Chart [Documentation](https://github.com/CloudPirates-io/helm-charts/tree/postgres-0.18.3/charts/postgres).
 The `HashiCorp Vault` deployment is specifically adjusted for this scenario as it allows combination of 
 a persistent backend with the developer server. This needs to be considered when the Issuer is deployed productively.
 
@@ -20,9 +20,7 @@ a persistent backend with the developer server. This needs to be considered when
 | install.postgresql                           | true                           | Toggle the deployment of a `PostgreSQL`                                       |          |
 | install.vault                                | true                           | Toggle the deployment of a `HashiCorp Vault`                                  |          |
 |                                              |                                |                                                                               |          |
-| global.participantId                         | did:web:dataspace:issuer       | The id of this issuer, represented as DID:WEB                                 | X        |
-| global.defaultStorageClass                   | default                        | Used storage class to create PVCs                                             |          |
-|                                              |                                |                                                                               |          |
+| participantId                                | did:web:dataspace:issuer       | The id of this issuer, represented as DID:WEB                                 | X        |
 | namespaceOverride                            | ""                             | Override the namespace                                                        |          |
 |                                              |                                |                                                                               |          |
 | issuer.image.repository                      | ghcr.io/re4de/dataspace-issuer | Repository URL of the Docker Image                                            |          |
@@ -96,4 +94,7 @@ a persistent backend with the developer server. This needs to be considered when
 | vault.dev.devRootToken                       | changeme                       | The `HashiCorp Vault` access token                                            | X        |
 | vault.persistence.size                       | 8Gi                            | Size of the volume                                                            |          |
 | vault.persistence.volumeName                 | vault-vol                      | Name of the volume                                                            |          |
+| vault.persistence.storageClass               | changeme                       | The name of the storage class                                                 | X        |
 | vault.postStart                              | []                             | A script that can be used to initialy create key/value pairs                  |          |
+|                                              |                                |                                                                               |          |
+| postgres.persistence.strageClass             | changeme                       | The name of the storage class                                                 | X        |
