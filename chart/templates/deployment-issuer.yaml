@@ -159,7 +159,7 @@ spec:
             - name: EDC_SQL_FETCH_SIZE
               value: {{ .Values.issuer.edc.sql.fetchSize | quote }}
             - name: EDC_DATASOURCE_DEFAULT_USER
-              value: {{ .Values.postgres.customUser.username | quote }}
+              value: {{ .Values.postgres.customUser.name | quote }}
             - name: EDC_DATASOURCE_DEFAULT_PASSWORD
               valueFrom:
                 secretKeyRef:

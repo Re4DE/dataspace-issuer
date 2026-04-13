@@ -49,10 +49,8 @@ Generates the vault labels
 {{- define "vault.labels" -}}
 app.kubernetes.io/name: issuer
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Values.vault.image.tag | quote }}
 app.kubernetes.io/component: vault
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end -}}
 
 {{/*
