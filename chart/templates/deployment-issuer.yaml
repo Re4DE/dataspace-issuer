@@ -166,4 +166,4 @@ spec:
                   name: {{ .Values.postgres.auth.existingSecret }}
                   key: {{ .Values.postgres.customUser.secretKeys.password }}
             - name: EDC_DATASOURCE_DEFAULT_URL
-              value: "jdbc:postgresql://{{ .Release.Name }}-postgresql:{{ .Values.postgres.service.port }}/{{ .Values.postgres.customUser.database }}"
+              value: "jdbc:postgresql://{{ .Release.Name }}-postgres:{{ .Values.postgres.service.port }}/{{ .Values.postgres.customUser.database }}"
