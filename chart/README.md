@@ -17,7 +17,7 @@ a persistent backend with the developer server. This needs to be considered when
 
 | Key                                          | Default                        | Description                                                                   | Override |
 |----------------------------------------------|--------------------------------|-------------------------------------------------------------------------------|----------|
-| install.postgresql                           | true                           | Toggle the deployment of a `PostgreSQL`                                       |          |
+| install.postgres                             | true                           | Toggle the deployment of a `PostgreSQL`                                       |          |
 | install.vault                                | true                           | Toggle the deployment of a `HashiCorp Vault`                                  |          |
 |                                              |                                |                                                                               |          |
 | participantId                                | did:web:dataspace:issuer       | The id of this issuer, represented as DID:WEB                                 | X        |

@@ -13,7 +13,7 @@
 #
 
 install:
-  postgresql: true
+  postgres: true
   vault: true
 
 participantId: did:web:dataspcae:issuer
@@ -138,4 +138,4 @@ postgres:
       database: null
       password: password
   initdb:
-    scriptsConfigMap: postgresql
+    scriptsConfigMap: postgres
