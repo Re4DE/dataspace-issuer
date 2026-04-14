@@ -95,6 +95,5 @@ a persistent backend with the developer server. This needs to be considered when
 | vault.persistence.size                       | 8Gi                            | Size of the volume                                                            |          |
 | vault.persistence.volumeName                 | vault-vol                      | Name of the volume                                                            |          |
 | vault.persistence.storageClass               | changeme                       | The name of the storage class                                                 | X        |
-| vault.postStart                              | []                             | A script that can be used to initialy create key/value pairs                  |          |
 |                                              |                                |                                                                               |          |
 | postgres.persistence.storageClass            | changeme                       | The name of the storage class                                                 | X        |

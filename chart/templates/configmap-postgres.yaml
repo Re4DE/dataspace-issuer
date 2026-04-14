@@ -19,6 +19,7 @@ metadata:
   labels: {{- include "issuer.labels" . | nindent 4 }}
 data:
   init-membership-attestation.sql: |
+    \c {{ .Values.postgres.customUser.database }}
     CREATE TABLE IF NOT EXISTS membership_attestations
     (
         holder_id   varchar                                 not null,
@@ -30,6 +31,7 @@ data:
     CREATE UNIQUE INDEX IF NOT EXISTS membership_attestation_holder_id_uindex
         ON membership_attestations (holder_id);
   init-marketPartner-attestation.sql: |
+    \c {{ .Values.postgres.customUser.database }}
     CREATE TABLE IF NOT EXISTS marketpartner_attestations
     (
         company_name        varchar                                 not null,

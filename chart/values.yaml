@@ -122,7 +122,6 @@ vault:
     size: 8Gi
     volumeName: vault-vol
     storageClass: changeme
-  postStart: []
 
 postgres:
   persistence:
