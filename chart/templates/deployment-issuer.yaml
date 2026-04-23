@@ -68,7 +68,7 @@ spec:
               value: {{ .Values.issuer.ingress.host | quote }}
             - name: EDC_IAM_DID_WEB_USE_HTTPS
               value: {{ .Values.issuer.edc.issuer.iam.didWebHttps | quote }}
-            - name: EDC_IH_API_SUPERUSER_KEY
+            - name: EDC_ISSUER_API_SUPERUSER_KEY
               value: {{ .Values.issuer.edc.issuer.seed.superUserKey | quote }}
             - name: EDC_ISSUER_DID
               value: {{ .Values.participantId | quote }}
