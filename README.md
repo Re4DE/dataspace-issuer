@@ -89,8 +89,7 @@ vault:
 ### 2. Deploy with Helm
 
 ```bash
-$ helm dependency update
-$ helm install dataspace-issuer -f overwrite.yaml . --namespace dataspace-issuer --create-namespace
+$ helm install dataspace-issuer -f overwrite.yaml oci://ghcr.io/re4de/charts/dataspace-issuer --version 1.1.0 --namespace dataspace-issuer --create-namespace
 ```
 
 ## Local Development
