@@ -52,6 +52,7 @@ a persistent backend with the developer server. This needs to be considered when
 | issuer.endpoints.statuslist.public           | true                           | Toggle to create a Ingress Rule                                               |          |
 | issuer.service.enabled                       | true                           | Toggle to create a service                                                    |          |
 | issuer.ingress.enabled                       | true                           | Toggle to create the ingress rules                                            |          |
+| issuer.ingress.className                     | nginx                          | Set the class name of the Ingress Controller                                  |          |
 | issuer.ingress.host                          | changeme                       | DNS for the issuer                                                            | X        |
 | issuer.ingress.tls.enabled                   | false                          | Enables TLS on the ingress rule                                               |          |
 | issuer.ingress.tls.issuer                    | cert-issuer                    | The name of the cluster issuer used by the cert-manager to issue Certificates |          | 
