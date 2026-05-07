@@ -1,6 +1,11 @@
 # Dataspace Issuer
 
-[![license](https://img.shields.io/github/license/eclipse-edc/Connector?style=flat-square&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0)
+[![docker version](https://img.shields.io/github/v/tag/Re4DE/dataspace-issuer?style=flat-square&logo=docker&label=latest%20version)](https://github.com/orgs/Re4DE/packages?repo_name=dataspace-issuer)
+[![license](https://img.shields.io/github/license/Re4DE/dataspace-issuer?style=flat-square&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0)
+<br>
+[![ci](https://img.shields.io/github/check-runs/Re4DE/dataspace-issuer/main?style=flat-square&logo=github&label=ci)](https://github.com/Re4DE/dataspace-issuer/actions)
+[![snapshot build](https://img.shields.io/github/actions/workflow/status/Re4DE/dataspace-issuer/build_snapshot.yml?branch=main&style=flat-square&logo=github&label=snapshot-build)](https://github.com/Re4DE/dataspace-issuer/actions/workflows/build_snapshot.yml)
+[![helm build](https://img.shields.io/github/actions/workflow/status/Re4DE/dataspace-issuer/helm_chart.yml?branch=main&style=flat-square&logo=github&label=helm-build)](https://github.com/Re4DE/dataspace-issuer/actions/workflows/helm_chart.yml)
 
 ---
 
