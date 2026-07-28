@@ -22,7 +22,7 @@ namespaceOverride: ""
 issuer:
   image:
     repository: ghcr.io/re4de/dataspace-issuer
-    tag: 1.1.0-edc0.14.0
+    tag: 1.1.1-edc0.14.0
   scheduling:
     label: null
   endpoints:
