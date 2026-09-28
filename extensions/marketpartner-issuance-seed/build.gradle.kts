@@ -19,4 +19,6 @@ plugins {
 dependencies {
     implementation(libs.edc.ih.spi)
     implementation(libs.edc.ih.issuance.spi)
+
+    testImplementation(libs.edc.junit)
 }
