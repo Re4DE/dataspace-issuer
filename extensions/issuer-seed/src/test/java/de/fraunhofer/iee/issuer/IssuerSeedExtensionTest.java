@@ -15,7 +15,6 @@ import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.Hostname;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.system.configuration.ConfigFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,6 @@ class IssuerSeedExtensionTest {
     private ServiceExtensionContext context;
     private ObjectFactory factory;
 
-
     @BeforeEach
     void setUp(ServiceExtensionContext context, ObjectFactory factory) {
         this.context = context;
@@ -58,10 +56,6 @@ class IssuerSeedExtensionTest {
         context.registerService(ParticipantContextService.class, participantContextService);
         context.registerService(Hostname.class, hostname);
         context.registerService(Vault.class, vault);
-    }
-
-    @AfterEach
-    void tearDown() {
     }
 
     @Nested
@@ -192,7 +186,6 @@ class IssuerSeedExtensionTest {
             var exception = assertThrows(EdcException.class, extension::start);
             assertThat(exception.getMessage()).contains("Error creating Super-User: invalid manifest");
         }
-
     }
 
     @Nested

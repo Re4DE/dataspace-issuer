@@ -12,7 +12,6 @@ import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.result.ServiceResult;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.system.configuration.ConfigFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -66,10 +65,6 @@ class MembershipIssuanceExtensionTest {
         when(context.getMonitor()).thenReturn(monitor);
         context.registerService(AttestationDefinitionService.class, attestationDefinitionService);
         context.registerService(CredentialDefinitionService.class, credentialDefinitionService);
-    }
-
-    @AfterEach
-    void tearDown() {
     }
 
     @Nested
@@ -205,7 +200,6 @@ class MembershipIssuanceExtensionTest {
     private boolean isCredentialMappingPresent(List<MappingDefinition> mappings) {
         return mappings.stream()
                 .anyMatch(mapping -> mapping.input().equals("holder_id") && mapping.output().equals("credentialSubject.holderIdentifier"));
-
     }
 
     private MembershipIssuanceExtension extension(ObjectFactory factory, ServiceExtensionContext context, String tableName, String dataSourceName, String idColumn) {
