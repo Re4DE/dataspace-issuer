@@ -85,7 +85,7 @@ public class IssuerSeedExtension implements ServiceExtension {
 
         // Create the Super User
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
-                        .participantId(DEFAULT_SUPER_USER_PARTICIPANT_ID)
+                        .participantContextId(DEFAULT_SUPER_USER_PARTICIPANT_ID)
                         .did("did:web:%s".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
                         .active(true)
                         .key(KeyDescriptor.Builder.newInstance()
@@ -133,7 +133,7 @@ public class IssuerSeedExtension implements ServiceExtension {
         var serviceEndpoint = new Service("issuer-service-1", "IssuerService", endpointUrl);
 
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
-                        .participantId(this.issuerDid)
+                        .participantContextId(this.issuerDid)
                         .did(this.issuerDid)
                         .active(true)
                         .roles(List.of(ServicePrincipal.ROLE_ADMIN))

@@ -101,12 +101,14 @@ class IssuerSeedExtensionTest {
             verify(participantContextService).createParticipantContext(captor.capture());
 
             var manifest = captor.getValue();
-            assertThat(manifest.getParticipantId()).isEqualTo(SUPER_USER_PARTICIPANT_ID);
+            var key = manifest.getKeys().stream().filter(k -> k.getKeyId().equals("super-user#key-1")).findFirst().orElse(null);
+            assertThat(manifest.getParticipantContextId()).isEqualTo(SUPER_USER_PARTICIPANT_ID);
             assertThat(manifest.getDid()).isEqualTo("did:web:%s".formatted(SUPER_USER_PARTICIPANT_ID));
             assertThat(manifest.isActive()).isTrue();
-            assertThat(manifest.getKey().getKeyId()).isEqualTo("super-user#key-1");
-            assertThat(manifest.getKey().getPrivateKeyAlias()).isEqualTo("super-user#key-1");
-            assertThat(manifest.getKey().getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA").containsEntry("curve", "Ed25519");
+            assertThat(key).isNotNull();
+            assertThat(key.getKeyId()).isEqualTo("super-user#key-1");
+            assertThat(key.getPrivateKeyAlias()).isEqualTo("super-user#key-1");
+            assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA").containsEntry("curve", "Ed25519");
             assertThat(manifest.getRoles()).containsExactly(ServicePrincipal.ROLE_ADMIN);
 
             verify(monitor).info(contains("Super User key not provided. Generated:"));
@@ -128,7 +130,7 @@ class IssuerSeedExtensionTest {
             verify(monitor).debug("Super User key override successful");
             verify(vault).storeSecret(API_TOKEN_ALIAS, SUPER_USER_API_KEY);
         }
-        
+
         @Test
         void shouldWarn_whenApiKeyHasInvalidFormat() {
             when(participantContextService.getParticipantContext(SUPER_USER_PARTICIPANT_ID))
@@ -215,13 +217,15 @@ class IssuerSeedExtensionTest {
             var didBase64 = Base64.getEncoder().encodeToString(ISSUER_DID.getBytes());
 
             var manifest = captor.getValue();
-            assertThat(manifest.getParticipantId()).isEqualTo(ISSUER_DID);
+            var key = manifest.getKeys().stream().filter(k -> k.getKeyId().equals("did:web:localhost:8080#key-1")).findFirst().orElse(null);
+            assertThat(manifest.getParticipantContextId()).isEqualTo(ISSUER_DID);
             assertThat(manifest.getDid()).isEqualTo(ISSUER_DID);
             assertThat(manifest.isActive()).isTrue();
+            assertThat(key).isNotNull();
+            assertThat(key.getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
+            assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
+            assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
             assertThat(manifest.getRoles()).containsExactly(ServicePrincipal.ROLE_ADMIN);
-            assertThat(manifest.getKey().getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
-            assertThat(manifest.getKey().getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
-            assertThat(manifest.getKey().getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
 
             manifest.getServiceEndpoints().forEach(endpoint -> {
                 assertThat(endpoint.getId()).isEqualTo("issuer-service-1");
@@ -250,13 +254,15 @@ class IssuerSeedExtensionTest {
             var didBase64 = Base64.getEncoder().encodeToString(ISSUER_DID.getBytes());
 
             var manifest = captor.getValue();
-            assertThat(manifest.getParticipantId()).isEqualTo(ISSUER_DID);
+            var key = manifest.getKeys().stream().filter(k -> k.getKeyId().equals("did:web:localhost:8080#key-1")).findFirst().orElse(null);
+            assertThat(manifest.getParticipantContextId()).isEqualTo(ISSUER_DID);
             assertThat(manifest.getDid()).isEqualTo(ISSUER_DID);
             assertThat(manifest.isActive()).isTrue();
+            assertThat(key).isNotNull();
+            assertThat(key.getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
+            assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
+            assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
             assertThat(manifest.getRoles()).containsExactly(ServicePrincipal.ROLE_ADMIN);
-            assertThat(manifest.getKey().getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
-            assertThat(manifest.getKey().getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
-            assertThat(manifest.getKey().getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
 
             manifest.getServiceEndpoints().forEach(endpoint -> {
                 assertThat(endpoint.getId()).isEqualTo("issuer-service-1");
