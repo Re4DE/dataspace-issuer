@@ -10,6 +10,7 @@ shadow = "8.3.6"
 # edc libs
 edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
 edc-junit = { module = "org.eclipse.edc:junit", version.ref = "edc" }
+edc-participantcontext-config-store-sql = { module = "org.eclipse.edc:participantcontext-config-store-sql", version.ref = "edc" }
 
 # issuer libs
 edc-ih-credentials-spi = { module = "org.eclipse.edc:verifiable-credential-spi", version.ref = "edc" }
@@ -22,7 +23,7 @@ bom-issuer = { module = "org.eclipse.edc:issuerservice-bom", version.ref = "edc"
 bom-issuer-feat-sql = { module = "org.eclipse.edc:issuerservice-feature-sql-bom", version.ref = "edc" }
 
 [bundles]
-issuer = ["bom-issuer", "bom-issuer-feat-sql", "edc-vault-hashicorp"]
+issuer = ["bom-issuer", "bom-issuer-feat-sql", "edc-vault-hashicorp", "edc-participantcontext-config-store-sql"]
 
 [plugins]
 edc-build = { id = "org.eclipse.edc.edc-build", version.ref = "edc-build" }
