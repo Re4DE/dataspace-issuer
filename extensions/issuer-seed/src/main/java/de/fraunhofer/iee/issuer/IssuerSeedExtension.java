@@ -79,13 +79,13 @@ public class IssuerSeedExtension implements ServiceExtension {
     private void seedSuperUser() {
         // Only create the Super User if not present
         if (this.participantContextService.getParticipantContext(DEFAULT_SUPER_USER_PARTICIPANT_ID).succeeded()) {
-            this.monitor.debug("Super User already created, skip seeding");
+            this.monitor.info("Super User already created, skip seeding");
             return;
         }
 
         // Create the Super User
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
-                        .participantId(DEFAULT_SUPER_USER_PARTICIPANT_ID)
+                        .participantContextId(DEFAULT_SUPER_USER_PARTICIPANT_ID)
                         .did("did:web:%s".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
                         .active(true)
                         .key(KeyDescriptor.Builder.newInstance()
@@ -105,7 +105,7 @@ public class IssuerSeedExtension implements ServiceExtension {
                                 }
                                 this.participantContextService.getParticipantContext(DEFAULT_SUPER_USER_PARTICIPANT_ID)
                                         .onSuccess(pc -> this.vault.storeSecret(pc.getApiTokenAlias(), key)
-                                                .onSuccess(v -> this.monitor.debug("Super User key override successful"))
+                                                .onSuccess(v -> this.monitor.info("Super User key override successful"))
                                                 .onFailure(f -> this.monitor.warning("Error storing API key in vault: %s".formatted(f.getFailureDetail()))))
                                         .onFailure(f -> this.monitor.warning("Error overriding API key for '%s': %s".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID, f.getFailureDetail())));
                                 return key;
@@ -124,7 +124,7 @@ public class IssuerSeedExtension implements ServiceExtension {
 
         // Only create the Issuer if not present
         if (this.participantContextService.getParticipantContext(this.issuerDid).succeeded()) {
-            this.monitor.debug("Issuer already created, skip seeding");
+            this.monitor.info("Issuer already created, skip seeding");
             return;
         }
 
@@ -133,7 +133,7 @@ public class IssuerSeedExtension implements ServiceExtension {
         var serviceEndpoint = new Service("issuer-service-1", "IssuerService", endpointUrl);
 
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
-                        .participantId(this.issuerDid)
+                        .participantContextId(this.issuerDid)
                         .did(this.issuerDid)
                         .active(true)
                         .roles(List.of(ServicePrincipal.ROLE_ADMIN))
