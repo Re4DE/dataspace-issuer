@@ -71,8 +71,8 @@ class IssuerSeedExtensionTest {
             var extension = extension(factory, context, null, ISSUER_BASE_URL, ISSUER_DID);
             extension.start();
 
-            verify(monitor).debug("Super User already created, skip seeding");
-            verify(monitor).debug("Issuer already created, skip seeding");
+            verify(monitor).info("Super User already created, skip seeding");
+            verify(monitor).info("Issuer already created, skip seeding");
             verify(participantContextService, never()).createParticipantContext(any());
             verifyNoInteractions(vault);
         }
@@ -127,7 +127,7 @@ class IssuerSeedExtensionTest {
             var extension = extension(factory, context, SUPER_USER_API_KEY, ISSUER_BASE_URL, ISSUER_DID);
             extension.start();
 
-            verify(monitor).debug("Super User key override successful");
+            verify(monitor).info("Super User key override successful");
             verify(vault).storeSecret(API_TOKEN_ALIAS, SUPER_USER_API_KEY);
         }
 
