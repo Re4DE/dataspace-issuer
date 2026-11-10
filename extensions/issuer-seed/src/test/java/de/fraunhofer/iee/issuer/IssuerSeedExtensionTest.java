@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,10 +32,12 @@ class IssuerSeedExtensionTest {
 
     private static final String SUPER_USER_PARTICIPANT_ID = "super-user";
     private static final String API_TOKEN_ALIAS = "super-user-apikey";
-    private static final String SUPER_USER_API_KEY = "c3VwZXItdXNlcg==.devpass";
+    private static final String SUPER_USER_API_KEY = "c3VwZXItdXNlcg==.ZGV2cGFzcw==";
     private static final String ISSUER_BASE_URL = "http://localhost:8080";
-    private static final String ISSUER_DID = "did:web:localhost:8080";
-    private static final String ROLE_ADMIN = "admin";
+    private static final String ISSUER_DID = "did:web:localhost%3A8080:issuer";
+    private static final String ISSUER_PARTICIPANT_ID = "issuer";
+    private static final String[] SUPER_USER_ROLE = { "issuer-admin-api:admin", "issuer-admin-api:write", "issuer-admin-api:read" };
+    private static final String ISSUER_ROLE = "issuer-admin-api:admin";
 
     private final IdentityHubParticipantContextService participantContextService = mock();
     private final Hostname hostname = mock();
@@ -65,10 +66,10 @@ class IssuerSeedExtensionTest {
         void shouldSkip_whenSuperUserAndIssuerAlreadyExists() {
             when(participantContextService.getParticipantContext(SUPER_USER_PARTICIPANT_ID))
                     .thenReturn(ServiceResult.success(participantContext));
-            when(participantContextService.getParticipantContext(ISSUER_DID))
+            when(participantContextService.getParticipantContext(ISSUER_PARTICIPANT_ID))
                     .thenReturn(ServiceResult.success(participantContext));
 
-            var extension = extension(factory, context, null, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, null);
             extension.start();
 
             verify(monitor).info("Super User already created, skip seeding");
@@ -83,7 +84,7 @@ class IssuerSeedExtensionTest {
 
         @BeforeEach
         void setUp() {
-            when(participantContextService.getParticipantContext(ISSUER_DID))
+            when(participantContextService.getParticipantContext(ISSUER_PARTICIPANT_ID))
                     .thenReturn(ServiceResult.success(participantContext));
         }
 
@@ -94,7 +95,7 @@ class IssuerSeedExtensionTest {
             when(participantContextService.createParticipantContext(any()))
                     .thenReturn(ServiceResult.success(new CreateParticipantContextResponse("generated-key", null, null)));
 
-            var extension = extension(factory, context, null, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, null);
             extension.start();
 
             var captor = ArgumentCaptor.forClass(ParticipantManifest.class);
@@ -108,8 +109,8 @@ class IssuerSeedExtensionTest {
             assertThat(key).isNotNull();
             assertThat(key.getKeyId()).isEqualTo("super-user#key-1");
             assertThat(key.getPrivateKeyAlias()).isEqualTo("super-user#key-1");
-            assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA").containsEntry("curve", "Ed25519");
-            assertThat(manifest.getScopes()).containsExactly(ROLE_ADMIN);
+            assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
+            assertThat(manifest.getScopes()).containsExactly(SUPER_USER_ROLE);
 
             verify(monitor).info(contains("Super User key not provided. Generated:"));
             verifyNoInteractions(vault);
@@ -124,7 +125,7 @@ class IssuerSeedExtensionTest {
             when(vault.storeSecret(any(), any())).thenReturn(Result.success());
             when(participantContext.getApiTokenAlias()).thenReturn(API_TOKEN_ALIAS);
 
-            var extension = extension(factory, context, SUPER_USER_API_KEY, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, SUPER_USER_API_KEY);
             extension.start();
 
             verify(monitor).info("Super User key override successful");
@@ -140,7 +141,7 @@ class IssuerSeedExtensionTest {
             when(vault.storeSecret(any(), any())).thenReturn(Result.success());
             when(participantContext.getApiTokenAlias()).thenReturn(API_TOKEN_ALIAS);
 
-            var extension = extension(factory, context, "invalid-api-key-format", ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, "invalid-api-key-format");
             extension.start();
 
             verify(monitor).severe("Super-user key override: this key appears to have an invalid format, you may be unable to access some APIs. It must follow the structure: 'base64(<participantId>).<random-string>'");
@@ -156,7 +157,7 @@ class IssuerSeedExtensionTest {
             when(vault.storeSecret(any(), any())).thenReturn(Result.failure("vault error"));
             when(participantContext.getApiTokenAlias()).thenReturn(API_TOKEN_ALIAS);
 
-            var extension = extension(factory, context, SUPER_USER_API_KEY, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, SUPER_USER_API_KEY);
             extension.start();
 
             verify(monitor).warning("Error storing API key in vault: vault error");
@@ -169,7 +170,7 @@ class IssuerSeedExtensionTest {
             when(participantContextService.createParticipantContext(any()))
                     .thenReturn(ServiceResult.success(new CreateParticipantContextResponse("generated-key", null, null)));
 
-            var extension = extension(factory, context, SUPER_USER_API_KEY, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, SUPER_USER_API_KEY);
             extension.start();
 
             verify(monitor).warning("Error overriding API key for '%s': retrieval error".formatted(SUPER_USER_PARTICIPANT_ID));
@@ -183,7 +184,7 @@ class IssuerSeedExtensionTest {
             when(participantContextService.createParticipantContext(any()))
                     .thenReturn(ServiceResult.badRequest("invalid manifest"));
 
-            var extension = extension(factory, context, SUPER_USER_API_KEY, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, SUPER_USER_API_KEY);
 
             var exception = assertThrows(EdcException.class, extension::start);
             assertThat(exception.getMessage()).contains("Error creating Super-User: invalid manifest");
@@ -201,37 +202,35 @@ class IssuerSeedExtensionTest {
 
         @Test
         void shouldCreateWithCorrectManifest_whenIssuerDoesNotExist() {
-            when(participantContextService.getParticipantContext(ISSUER_DID))
+            when(participantContextService.getParticipantContext(ISSUER_PARTICIPANT_ID))
                     .thenReturn(ServiceResult.notFound("not found"));
             when(participantContextService.createParticipantContext(any()))
                     .thenReturn(ServiceResult.success(new CreateParticipantContextResponse("generated-key", null, null)));
             when(context.getSetting("web.http.issuance.path", "/api/issuance"))
                     .thenReturn("/api/another-issuance");
 
-            var extension = extension(factory, context, null, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, null);
             extension.start();
 
             var captor = ArgumentCaptor.forClass(ParticipantManifest.class);
             verify(participantContextService).createParticipantContext(captor.capture());
 
-            var didBase64 = Base64.getEncoder().encodeToString(ISSUER_DID.getBytes());
-
             var manifest = captor.getValue();
-            var key = manifest.getKeys().stream().filter(k -> k.getKeyId().equals("did:web:localhost:8080#key-1")).findFirst().orElse(null);
-            assertThat(manifest.getParticipantContextId()).isEqualTo(ISSUER_DID);
+            var key = manifest.getKeys().stream().filter(k -> k.getKeyId().equals("did:web:localhost%3A8080:issuer#key-1")).findFirst().orElse(null);
+            assertThat(manifest.getParticipantContextId()).isEqualTo(ISSUER_PARTICIPANT_ID);
             assertThat(manifest.getDid()).isEqualTo(ISSUER_DID);
             assertThat(manifest.isActive()).isTrue();
             assertThat(key).isNotNull();
-            assertThat(key.getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
-            assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
+            assertThat(key.getKeyId()).isEqualTo("did:web:localhost%3A8080:issuer#key-1");
+            assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost%3A8080:issuer#key-1");
             assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
-            assertThat(manifest.getScopes()).containsExactly(ROLE_ADMIN);
+            assertThat(manifest.getScopes()).containsExactly(ISSUER_ROLE);
 
             manifest.getServiceEndpoints().forEach(endpoint -> {
                 assertThat(endpoint.getId()).isEqualTo("issuer-service-1");
                 assertThat(endpoint.getType()).isEqualTo("IssuerService");
                 assertThat(endpoint.getServiceEndpoint())
-                        .isEqualTo(ISSUER_BASE_URL + "/api/another-issuance/v1alpha/participants/" + didBase64);
+                        .isEqualTo(ISSUER_BASE_URL + "/api/another-issuance/v1beta/participants/" + ISSUER_PARTICIPANT_ID);
             });
 
             verify(monitor).info(contains("Issuer created."));
@@ -240,35 +239,33 @@ class IssuerSeedExtensionTest {
 
         @Test
         void shouldCreateWithCorrectManifest_whenIssuerDoesNotExistAndDefaultIssuancePath() {
-            when(participantContextService.getParticipantContext(ISSUER_DID))
+            when(participantContextService.getParticipantContext(ISSUER_PARTICIPANT_ID))
                     .thenReturn(ServiceResult.notFound("not found"));
             when(participantContextService.createParticipantContext(any()))
                     .thenReturn(ServiceResult.success(new CreateParticipantContextResponse("generated-key", null, null)));
 
-            var extension = extension(factory, context, null, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, null);
             extension.start();
 
             var captor = ArgumentCaptor.forClass(ParticipantManifest.class);
             verify(participantContextService).createParticipantContext(captor.capture());
 
-            var didBase64 = Base64.getEncoder().encodeToString(ISSUER_DID.getBytes());
-
             var manifest = captor.getValue();
-            var key = manifest.getKeys().stream().filter(k -> k.getKeyId().equals("did:web:localhost:8080#key-1")).findFirst().orElse(null);
-            assertThat(manifest.getParticipantContextId()).isEqualTo(ISSUER_DID);
+            var key = manifest.getKeys().stream().filter(k -> k.getKeyId().equals("did:web:localhost%3A8080:issuer#key-1")).findFirst().orElse(null);
+            assertThat(manifest.getParticipantContextId()).isEqualTo(ISSUER_PARTICIPANT_ID);
             assertThat(manifest.getDid()).isEqualTo(ISSUER_DID);
             assertThat(manifest.isActive()).isTrue();
             assertThat(key).isNotNull();
-            assertThat(key.getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
-            assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
+            assertThat(key.getKeyId()).isEqualTo("did:web:localhost%3A8080:issuer#key-1");
+            assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost%3A8080:issuer#key-1");
             assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
-            assertThat(manifest.getScopes()).containsExactly(ROLE_ADMIN);
+            assertThat(manifest.getScopes()).containsExactly(ISSUER_ROLE);
 
             manifest.getServiceEndpoints().forEach(endpoint -> {
                 assertThat(endpoint.getId()).isEqualTo("issuer-service-1");
                 assertThat(endpoint.getType()).isEqualTo("IssuerService");
                 assertThat(endpoint.getServiceEndpoint())
-                        .isEqualTo(ISSUER_BASE_URL + "/api/issuance/v1alpha/participants/" + didBase64);
+                        .isEqualTo(ISSUER_BASE_URL + "/api/issuance/v1beta/participants/" + ISSUER_PARTICIPANT_ID);
             });
 
             verify(monitor).info("Issuer created.");
@@ -277,25 +274,25 @@ class IssuerSeedExtensionTest {
 
         @Test
         void shouldThrow_whenParticipantContextCreationFails() {
-            when(participantContextService.getParticipantContext(ISSUER_DID))
+            when(participantContextService.getParticipantContext(ISSUER_PARTICIPANT_ID))
                     .thenReturn(ServiceResult.notFound("not found"));
             when(participantContextService.createParticipantContext(any()))
                     .thenReturn(ServiceResult.badRequest("invalid manifest"));
 
-            var extension = extension(factory, context, null, ISSUER_BASE_URL, ISSUER_DID);
+            var extension = extension(factory, context, null);
 
             var exception = assertThrows(EdcException.class, extension::start);
             assertThat(exception.getMessage()).contains("Error creating Issuer: invalid manifest");
         }
     }
 
-    private IssuerSeedExtension extension(ObjectFactory factory, ServiceExtensionContext context, String apiKey, String issuerBaseUrl, String issuerDid) {
+    private IssuerSeedExtension extension(ObjectFactory factory, ServiceExtensionContext context, String apiKey) {
         Map<String, String> configMap = new HashMap<>();
         if (apiKey != null) {
             configMap.put("edc.issuer.api.superuser.key", apiKey);
         }
-        configMap.put("edc.issuer.base.url", issuerBaseUrl);
-        configMap.put("edc.issuer.did", issuerDid);
+        configMap.put("edc.issuer.base.url", ISSUER_BASE_URL);
+        configMap.put("edc.issuer.did", ISSUER_DID);
         when(context.getConfig()).thenReturn(ConfigFactory.fromMap(configMap));
 
         var extension = factory.constructInstance(IssuerSeedExtension.class);
