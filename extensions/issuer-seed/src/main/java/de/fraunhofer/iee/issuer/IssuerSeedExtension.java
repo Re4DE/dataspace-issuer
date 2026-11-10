@@ -15,8 +15,7 @@
 package de.fraunhofer.iee.issuer;
 
 import org.eclipse.edc.iam.did.spi.document.Service;
-import org.eclipse.edc.identityhub.spi.authentication.ServicePrincipal;
-import org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService;
+import org.eclipse.edc.identityhub.spi.participantcontext.IdentityHubParticipantContextService;
 import org.eclipse.edc.identityhub.spi.participantcontext.model.KeyDescriptor;
 import org.eclipse.edc.identityhub.spi.participantcontext.model.ParticipantManifest;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
@@ -29,6 +28,7 @@ import org.eclipse.edc.spi.system.Hostname;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +39,11 @@ import static java.util.Optional.ofNullable;
 @Extension(value = "Super User Seed Extension")
 public class IssuerSeedExtension implements ServiceExtension {
     public static final String DEFAULT_SUPER_USER_PARTICIPANT_ID = "super-user";
+    public static final String ROLE_ADMIN = "issuer-admin-api:admin";
+    private static final List<String> SUPER_USER_SCOPES = List.of(
+            ROLE_ADMIN,
+            "identity-api:admin"
+    );
 
     @Setting(key = "edc.issuer.api.superuser.key", description = "Explicitly set the initial API key for the Super User, if empty autogenerate", required = false)
     private String superUserApiKey;
@@ -50,7 +55,7 @@ public class IssuerSeedExtension implements ServiceExtension {
     private String issuerDid;
 
     @Inject
-    private ParticipantContextService participantContextService;
+    private IdentityHubParticipantContextService participantContextService;
 
     @Inject
     private Hostname hostname;
@@ -93,7 +98,7 @@ public class IssuerSeedExtension implements ServiceExtension {
                                 .keyId("%s#key-1".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
                                 .privateKeyAlias("%s#key-1".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
                                 .build())
-                        .roles(List.of(ServicePrincipal.ROLE_ADMIN))
+                        .scopes(SUPER_USER_SCOPES)
                         .build())
                 // If the creation was successful, we set the api or generate it if not present
                 .onSuccess(generatedKey -> {
@@ -120,7 +125,8 @@ public class IssuerSeedExtension implements ServiceExtension {
     }
 
     private void seedIssuer() {
-        var didBase64 = Base64.getEncoder().encodeToString(this.issuerDid.getBytes());
+        var contextId = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(this.issuerDid.getBytes(StandardCharsets.UTF_8));
 
         // Only create the Issuer if not present
         if (this.participantContextService.getParticipantContext(this.issuerDid).succeeded()) {
@@ -129,14 +135,14 @@ public class IssuerSeedExtension implements ServiceExtension {
         }
 
         // Create the issuer
-        var endpointUrl = "%s%s/v1alpha/participants/%s".formatted(this.issuerBaseUrl, this.issuancePath, didBase64);
+        var endpointUrl = "%s%s/v1beta/participants/%s".formatted(this.issuerBaseUrl, this.issuancePath, contextId);
         var serviceEndpoint = new Service("issuer-service-1", "IssuerService", endpointUrl);
 
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
-                        .participantContextId(this.issuerDid)
+                        .participantContextId(contextId)
                         .did(this.issuerDid)
                         .active(true)
-                        .roles(List.of(ServicePrincipal.ROLE_ADMIN))
+                        .scopes(SUPER_USER_SCOPES)
                         .key(KeyDescriptor.Builder.newInstance()
                                 .keyGeneratorParams(Map.of("algorithm", "EdDSA"))
                                 .keyId("%s#key-1".formatted(this.issuerDid))

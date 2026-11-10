@@ -1,10 +1,9 @@
 package de.fraunhofer.iee.issuer;
 
 import org.eclipse.edc.boot.system.injection.ObjectFactory;
-import org.eclipse.edc.identityhub.spi.authentication.ServicePrincipal;
-import org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService;
+import org.eclipse.edc.identityhub.spi.participantcontext.IdentityHubParticipantContextService;
 import org.eclipse.edc.identityhub.spi.participantcontext.model.CreateParticipantContextResponse;
-import org.eclipse.edc.identityhub.spi.participantcontext.model.ParticipantContext;
+import org.eclipse.edc.identityhub.spi.participantcontext.model.IdentityHubParticipantContext;
 import org.eclipse.edc.identityhub.spi.participantcontext.model.ParticipantManifest;
 import org.eclipse.edc.junit.extensions.DependencyInjectionExtension;
 import org.eclipse.edc.spi.EdcException;
@@ -37,12 +36,13 @@ class IssuerSeedExtensionTest {
     private static final String SUPER_USER_API_KEY = "c3VwZXItdXNlcg==.devpass";
     private static final String ISSUER_BASE_URL = "http://localhost:8080";
     private static final String ISSUER_DID = "did:web:localhost:8080";
+    private static final String ROLE_ADMIN = "admin";
 
-    private final ParticipantContextService participantContextService = mock();
+    private final IdentityHubParticipantContextService participantContextService = mock();
     private final Hostname hostname = mock();
     private final Vault vault = mock();
     private final Monitor monitor = mock();
-    private final ParticipantContext participantContext = mock();
+    private final IdentityHubParticipantContext participantContext = mock();
 
     private ServiceExtensionContext context;
     private ObjectFactory factory;
@@ -53,7 +53,7 @@ class IssuerSeedExtensionTest {
         this.factory = factory;
 
         when(context.getMonitor()).thenReturn(monitor);
-        context.registerService(ParticipantContextService.class, participantContextService);
+        context.registerService(IdentityHubParticipantContextService.class, participantContextService);
         context.registerService(Hostname.class, hostname);
         context.registerService(Vault.class, vault);
     }
@@ -109,7 +109,7 @@ class IssuerSeedExtensionTest {
             assertThat(key.getKeyId()).isEqualTo("super-user#key-1");
             assertThat(key.getPrivateKeyAlias()).isEqualTo("super-user#key-1");
             assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA").containsEntry("curve", "Ed25519");
-            assertThat(manifest.getRoles()).containsExactly(ServicePrincipal.ROLE_ADMIN);
+            assertThat(manifest.getScopes()).containsExactly(ROLE_ADMIN);
 
             verify(monitor).info(contains("Super User key not provided. Generated:"));
             verifyNoInteractions(vault);
@@ -225,7 +225,7 @@ class IssuerSeedExtensionTest {
             assertThat(key.getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
             assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
             assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
-            assertThat(manifest.getRoles()).containsExactly(ServicePrincipal.ROLE_ADMIN);
+            assertThat(manifest.getScopes()).containsExactly(ROLE_ADMIN);
 
             manifest.getServiceEndpoints().forEach(endpoint -> {
                 assertThat(endpoint.getId()).isEqualTo("issuer-service-1");
@@ -262,7 +262,7 @@ class IssuerSeedExtensionTest {
             assertThat(key.getKeyId()).isEqualTo("did:web:localhost:8080#key-1");
             assertThat(key.getPrivateKeyAlias()).isEqualTo("did:web:localhost:8080#key-1");
             assertThat(key.getKeyGeneratorParams()).containsEntry("algorithm", "EdDSA");
-            assertThat(manifest.getRoles()).containsExactly(ServicePrincipal.ROLE_ADMIN);
+            assertThat(manifest.getScopes()).containsExactly(ROLE_ADMIN);
 
             manifest.getServiceEndpoints().forEach(endpoint -> {
                 assertThat(endpoint.getId()).isEqualTo("issuer-service-1");
