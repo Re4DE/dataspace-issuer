@@ -15,8 +15,7 @@
 package de.fraunhofer.iee.issuer;
 
 import org.eclipse.edc.iam.did.spi.document.Service;
-import org.eclipse.edc.identityhub.spi.authentication.ServicePrincipal;
-import org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService;
+import org.eclipse.edc.identityhub.spi.participantcontext.IdentityHubParticipantContextService;
 import org.eclipse.edc.identityhub.spi.participantcontext.model.KeyDescriptor;
 import org.eclipse.edc.identityhub.spi.participantcontext.model.ParticipantManifest;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
@@ -29,7 +28,6 @@ import org.eclipse.edc.spi.system.Hostname;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,19 +36,21 @@ import static java.util.Optional.ofNullable;
 
 @Extension(value = "Super User Seed Extension")
 public class IssuerSeedExtension implements ServiceExtension {
-    public static final String DEFAULT_SUPER_USER_PARTICIPANT_ID = "super-user";
+    private static final String DEFAULT_SUPER_USER_PARTICIPANT_ID = "super-user";
+    private static final List<String> DEFAULT_SUPER_USER_SCOPES = List.of("issuer-admin-api:admin", "issuer-admin-api:write", "issuer-admin-api:read");
+    private static final List<String> DEFAULT_ISSUER_SCOPES = List.of("issuer-admin-api:admin");
 
     @Setting(key = "edc.issuer.api.superuser.key", description = "Explicitly set the initial API key for the Super User, if empty autogenerate", required = false)
     private String superUserApiKey;
 
-    @Setting(key = "edc.issuer.base.url", description = "The base url of the data space issuer")
+    @Setting(key = "edc.issuer.base.url", description = "The base url of the dataspace issuer")
     private String issuerBaseUrl;
 
-    @Setting(key = "edc.issuer.did", description = "The did of the data space issuer")
+    @Setting(key = "edc.issuer.did", description = "The did of the dataspace issuer")
     private String issuerDid;
 
     @Inject
-    private ParticipantContextService participantContextService;
+    private IdentityHubParticipantContextService participantContextService;
 
     @Inject
     private Hostname hostname;
@@ -79,21 +79,21 @@ public class IssuerSeedExtension implements ServiceExtension {
     private void seedSuperUser() {
         // Only create the Super User if not present
         if (this.participantContextService.getParticipantContext(DEFAULT_SUPER_USER_PARTICIPANT_ID).succeeded()) {
-            this.monitor.debug("Super User already created, skip seeding");
+            this.monitor.info("Super User already created, skip seeding");
             return;
         }
 
         // Create the Super User
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
-                        .participantId(DEFAULT_SUPER_USER_PARTICIPANT_ID)
-                        .did("did:web:%s".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
+                        .participantContextId(DEFAULT_SUPER_USER_PARTICIPANT_ID)
                         .active(true)
+                        .did("did:web:%s".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
                         .key(KeyDescriptor.Builder.newInstance()
-                                .keyGeneratorParams(Map.of("algorithm", "EdDSA", "curve", "Ed25519"))
+                                .keyGeneratorParams(Map.of("algorithm", "EdDSA"))
                                 .keyId("%s#key-1".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
                                 .privateKeyAlias("%s#key-1".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
                                 .build())
-                        .roles(List.of(ServicePrincipal.ROLE_ADMIN))
+                        .scopes(DEFAULT_SUPER_USER_SCOPES)
                         .build())
                 // If the creation was successful, we set the api or generate it if not present
                 .onSuccess(generatedKey -> {
@@ -105,7 +105,7 @@ public class IssuerSeedExtension implements ServiceExtension {
                                 }
                                 this.participantContextService.getParticipantContext(DEFAULT_SUPER_USER_PARTICIPANT_ID)
                                         .onSuccess(pc -> this.vault.storeSecret(pc.getApiTokenAlias(), key)
-                                                .onSuccess(v -> this.monitor.debug("Super User key override successful"))
+                                                .onSuccess(v -> this.monitor.info("Super User key override successful"))
                                                 .onFailure(f -> this.monitor.warning("Error storing API key in vault: %s".formatted(f.getFailureDetail()))))
                                         .onFailure(f -> this.monitor.warning("Error overriding API key for '%s': %s".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID, f.getFailureDetail())));
                                 return key;
@@ -120,23 +120,25 @@ public class IssuerSeedExtension implements ServiceExtension {
     }
 
     private void seedIssuer() {
-        var didBase64 = Base64.getEncoder().encodeToString(this.issuerDid.getBytes());
+        // did:web:<url-encode>:<participantId> -> extract the participantId, which is last entry in the split array
+        var didSplit = this.issuerDid.split(":");
+        var contextId = didSplit[didSplit.length - 1];
 
         // Only create the Issuer if not present
-        if (this.participantContextService.getParticipantContext(this.issuerDid).succeeded()) {
-            this.monitor.debug("Issuer already created, skip seeding");
+        if (this.participantContextService.getParticipantContext(contextId).succeeded()) {
+            this.monitor.info("Issuer already created, skip seeding");
             return;
         }
 
         // Create the issuer
-        var endpointUrl = "%s%s/v1alpha/participants/%s".formatted(this.issuerBaseUrl, this.issuancePath, didBase64);
+        var endpointUrl = "%s%s/v1beta/participants/%s".formatted(this.issuerBaseUrl, this.issuancePath, contextId);
         var serviceEndpoint = new Service("issuer-service-1", "IssuerService", endpointUrl);
 
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
-                        .participantId(this.issuerDid)
+                        .participantContextId(contextId)
                         .did(this.issuerDid)
                         .active(true)
-                        .roles(List.of(ServicePrincipal.ROLE_ADMIN))
+                        .scopes(DEFAULT_ISSUER_SCOPES)
                         .key(KeyDescriptor.Builder.newInstance()
                                 .keyGeneratorParams(Map.of("algorithm", "EdDSA"))
                                 .keyId("%s#key-1".formatted(this.issuerDid))
@@ -148,6 +150,5 @@ public class IssuerSeedExtension implements ServiceExtension {
                     this.monitor.info("Issuer created.");
                 })
                 .orElseThrow(f -> new EdcException("Error creating Issuer: " + f.getFailureDetail()));
-
     }
 }

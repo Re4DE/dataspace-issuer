@@ -3,6 +3,9 @@ name: "Helm Chart Build and Publish"
 on:
   workflow_dispatch:
 
+permissions:
+  packages: write
+
 env:
   REPOSITORY: ghcr.io/re4de
 

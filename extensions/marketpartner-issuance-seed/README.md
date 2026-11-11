@@ -1,7 +1,7 @@
 # MarketpartnerCredential issuance seed Extension
 
 This extension creates the market partner attestation and credential definition.
-With the market partner attestation definition, the data space issuer specifies the data a new participant needs to provide
+With the market partner attestation definition, the dataspace issuer specifies the data a new participant needs to provide
 during the onboarding process in case he is part of the regulated market communication.
 With the market partner credential definition, a mapping between attested properties and credential properties is created.
 

@@ -112,7 +112,7 @@ public class MarketPartnerIssuanceExtension implements ServiceExtension {
             this.monitor.info("Credential definition already seeded, skipped.");
             return;
         }
-        var credentialDef =  CredentialDefinition.Builder.newInstance()
+        var credentialDef = CredentialDefinition.Builder.newInstance()
                 .id(CREDENTIAL_DEFAULT_ID)
                 .credentialType(CREDENTIAL_DEFAULT_TYPE)
                 .attestations(Set.of(ATTESTATION_DEFAULT_ID))
