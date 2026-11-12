@@ -37,7 +37,7 @@ public class MembershipIssuanceExtension implements ServiceExtension {
 
     private static final String DEFAULT_PARTICIPANT_CONTEXT = "super-user";
 
-    private static final String ATTESTATION_DEFAULT_ID = "db-membership-attestation-def-1";
+    private static final String ATTESTATION_DEFAULT_ID = "db-membership-attestation-def";
     private static final String ATTESTATION_DEFAULT_TYPE = "database";
     private static final String ATTESTATION_DEFAULT_TABLE_NAME = "membership_attestations";
     private static final String ATTESTATION_DEFAULT_DATA_SOURCE_NAME = "default";
@@ -47,9 +47,8 @@ public class MembershipIssuanceExtension implements ServiceExtension {
     private static final String ATTESTATION_CONFIG_DATA_SOURCE_NAME = "dataSourceName";
     private static final String ATTESTATION_CONFIG_ID_COLUMN = "idColumn";
 
-    private static final String CREDENTIAL_DEFAULT_ID = "membership-credential-def-1";
+    private static final String CREDENTIAL_DEFAULT_ID = "membership-credential-def";
     private static final String CREDENTIAL_DEFAULT_TYPE = "MembershipCredential";
-    private static final String CREDENTIAL_DEFAULT_FORMAT = "VC1_0_JWT";
     private static final String CREDENTIAL_DEFAULT_JSON_SCHEMA = "{}";
     private static final String CREDENTIAL_DEFAULT_JSON_SCHEMA_URL = "";
 
@@ -121,7 +120,7 @@ public class MembershipIssuanceExtension implements ServiceExtension {
                 .rules(Set.of())
                 .jsonSchema(CREDENTIAL_DEFAULT_JSON_SCHEMA)
                 .jsonSchemaUrl(CREDENTIAL_DEFAULT_JSON_SCHEMA_URL)
-                .formatFrom(CredentialFormat.valueOf(CREDENTIAL_DEFAULT_FORMAT.toUpperCase()))
+                .formatFrom(CredentialFormat.VC2_0_JOSE)
                 .mappings(this.buildCredentialMappings())
                 .build();
         this.credentialDefinitionService.createCredentialDefinition(credentialDef)

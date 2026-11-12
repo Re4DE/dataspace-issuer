@@ -86,8 +86,8 @@ public class IssuerSeedExtension implements ServiceExtension {
         // Create the Super User
         this.participantContextService.createParticipantContext(ParticipantManifest.Builder.newInstance()
                         .participantContextId(DEFAULT_SUPER_USER_PARTICIPANT_ID)
-                        .active(true)
                         .did("did:web:%s".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))
+                        .active(true)
                         .key(KeyDescriptor.Builder.newInstance()
                                 .keyGeneratorParams(Map.of("algorithm", "EdDSA"))
                                 .keyId("%s#key-1".formatted(DEFAULT_SUPER_USER_PARTICIPANT_ID))

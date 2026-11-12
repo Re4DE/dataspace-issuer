@@ -31,7 +31,7 @@ application {
 
 tasks.shadowJar {
     mergeServiceFiles()
-    archiveFileName.set("issuer.jar")
+    archiveFileName.set("local-dev.jar")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
