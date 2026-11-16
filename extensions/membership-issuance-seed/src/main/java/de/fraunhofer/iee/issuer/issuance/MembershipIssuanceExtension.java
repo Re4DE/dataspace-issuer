@@ -130,6 +130,7 @@ public class MembershipIssuanceExtension implements ServiceExtension {
 
     private Set<MappingDefinition> buildCredentialMappings() {
         var mappings = new LinkedHashSet<MappingDefinition>();
+        mappings.add(new MappingDefinition("id", "credentialSubject.id", true));
         mappings.add(new MappingDefinition("holder_id", "credentialSubject.holderIdentifier", true));
         return mappings;
     }
